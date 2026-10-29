@@ -1,4 +1,3 @@
-```groovy
 post {
     success {
         emailext(
@@ -48,4 +47,3 @@ Jenkins CI/CD
         echo "Build URL: ${env.BUILD_URL}"
     }
 }
-```
