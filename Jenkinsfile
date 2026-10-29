@@ -83,6 +83,7 @@ Build URL: ${env.BUILD_URL}
             )
         }
 
+        ```groovy id="v9h2fs"
         failure {
             emailext(
                 subject: "FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
@@ -92,4 +93,15 @@ Job: ${env.JOB_NAME}
 Build: ${env.BUILD_NUMBER}
 Result: FAILURE
 
-Console Output: ${env.BUILD_URL}co_
+Console Output: ${env.BUILD_URL}console
+""",
+                to: 'fw7896@gmail.com'
+            )
+        }
+
+        always {
+            echo "Build result: ${currentBuild.currentResult}"
+            echo "Build URL: ${env.BUILD_URL}"
+        }
+    }
+}
