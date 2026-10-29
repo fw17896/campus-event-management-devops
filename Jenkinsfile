@@ -83,7 +83,6 @@ Build URL: ${env.BUILD_URL}
             )
         }
 
-        ```groovy id="v9h2fs"
         failure {
             emailext(
                 subject: "FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
