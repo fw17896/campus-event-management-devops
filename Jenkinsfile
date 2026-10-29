@@ -67,11 +67,21 @@ pipeline {
         }
     }
 
-    post {
-        success {
+post {
+    success {
+        script {
+            def commitEmail = sh(
+                script: 'git log -1 --format=%ae',
+                returnStdout: true
+            ).trim()
+
+            if (!commitEmail || commitEmail == 'unknown') {
+                error('Could not determine the commit author email.')
+            }
+
             emailext(
                 subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """The Jenkins pipeline completed successfully.
+                body: """Your committed changes were built and deployed successfully.
 
 Job: ${env.JOB_NAME}
 Build: ${env.BUILD_NUMBER}
@@ -79,14 +89,24 @@ Result: SUCCESS
 
 Build URL: ${env.BUILD_URL}
 """,
-                to: 'fw7896@gmail.com'
+                to: commitEmail
             )
         }
+    }
 
-        failure {
-            emailext(
-                subject: "FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """The Jenkins pipeline failed.
+    failure {
+        script {
+            def commitEmail = sh(
+                script: 'git log -1 --format=%ae',
+                returnStdout: true
+            ).trim()
+
+            if (!commitEmail || commitEmail == 'unknown') {
+                echo 'Could not determine the commit author email; notification skipped.'
+            } else {
+                emailext(
+                    subject: "FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                    body: """Your committed changes could not be built or deployed successfully.
 
 Job: ${env.JOB_NAME}
 Build: ${env.BUILD_NUMBER}
@@ -94,14 +114,16 @@ Result: FAILURE
 
 Console Output: ${env.BUILD_URL}console
 """,
-                to: 'fw7896@gmail.com'
-            )
-        }
-
-        always {
-            echo "Build result: ${currentBuild.currentResult}"
-            echo "Build URL: ${env.BUILD_URL}"
+                    to: commitEmail
+                )
+            }
         }
     }
+
+    always {
+        echo "Build result: ${currentBuild.currentResult}"
+        echo "Build URL: ${env.BUILD_URL}"
+    }
+}
 }
 
